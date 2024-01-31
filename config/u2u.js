@@ -13,7 +13,7 @@ const BENTOBOX_ADDRESS = '0x4cb93827e11d3f6cd2bcd99cff05871d47755330'
 const BLOCK_ADDRESS = '0xe4b8f63c111ef118587d30401e1db99f4cfbd900'
 
 module.exports = {
-  network: 'u2u-nebulas',
+  network: 'testnet',
   sushi: { address: SUSHI_ADDRESS },
   weth: { address: NATIVE_ADDRESS },
   wbtc: { address: WBTC_ADDRESS },
