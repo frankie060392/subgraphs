@@ -41,7 +41,7 @@ Deploy a subgraph by running the command below and replacing `<APP_NAME>` and `<
 ```sh
 APP=<APP_NAME> && NETWORK=<NETWORK_TYPE> && \
 node . prepare $APP $NETWORK && \
-pnpm exec turbo run codegen --scope=$APP && \
+pnpm exec turbo run generate --scope=$APP && \
 pnpm exec turbo run build --scope=$APP
 ```
 
@@ -92,3 +92,10 @@ do
 done
 ```
 
+
+
+APP=v3 && NETWORK=u2u
+node . prepare $APP $NETWORK
+pnpm exec turbo run generate --scope=$APP
+pnpm exec turbo run build --scope=$APP
+pnpm exec turbo run deploy:$NETWORK --scope=$APP
