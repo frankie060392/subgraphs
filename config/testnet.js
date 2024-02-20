@@ -93,12 +93,12 @@ module.exports = {
   },
   v3: {
     factory: {
-      address: '0x50ceb5c9d10e35c591e9f709a0a8599c5cc1619b',
-      startBlock: 16292234
+      address: '0x9f8f7af185C2B6018EE30d8664C51d68Bf682191',
+      startBlock: 17646232
     },
     positionManager: {
-      address: '0x1afdc125e3e7213f4c924067ca934b00e08b9fbc',
-      startBlock: 17633292
+      address: '0x8947965e577e899fa4ec709e5f4ead81bbcacbd8',
+      startBlock: 17646458
     },
     native: { address: NATIVE_ADDRESS },
     whitelistedTokenAddresses: [
@@ -117,7 +117,7 @@ module.exports = {
       DAI_ADDRESS,
       BUSD_ADDRESS
     ],
-    nativePricePool: '0x287e2c35947eaf0b3d7538a6dbfa26b37abc5b62',
+    nativePricePool: '0xdb60e05219f99b24da9271dd336fc9c3d406c5db',
     minimumEthLocked: 1.5
   },
   blacklistedTokenAddresses: [
