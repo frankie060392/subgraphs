@@ -97,8 +97,8 @@ module.exports = {
       startBlock: 16292234
     },
     positionManager: {
-      address: '0xbb47156e2a1faff33d2f1cb53900e07cec5f59a9',
-      startBlock: 16293376
+      address: '0x1afdc125e3e7213f4c924067ca934b00e08b9fbc',
+      startBlock: 17633292
     },
     native: { address: NATIVE_ADDRESS },
     whitelistedTokenAddresses: [
