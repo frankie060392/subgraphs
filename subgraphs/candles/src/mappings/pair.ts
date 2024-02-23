@@ -26,7 +26,7 @@ export function onSwapV3(event: SwapV3): void {
     let candle = CandleV3.load(candle_id)
     if (candle === null) {
       candle = new CandleV3(candle_id)
-      candle.time = timestamp
+      candle.time = time_id * periods[i]
       candle.timeId = time_id
       candle.period = periods[i]
       candle.token0 = pool.token0
