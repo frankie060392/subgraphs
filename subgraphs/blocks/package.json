@@ -9,17 +9,12 @@
     "generated"
   ],
   "scripts": {
-    "generate": "mustache ../../config/$NETWORK.js template.yaml > subgraph.yaml && graph codegen",
+    "generate": "mustache ../../config/testnet.js template.yaml > subgraph.yaml && graph codegen",
     "build": "graph build",
     "test": "graph test -r",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ sushiswap/blocks",
-    "create-local": "graph create --node http://localhost:8020/ sushiswap/blocks",
-    "remove-local": "graph remove --node http://localhost:8020/ sushiswap/blocks",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 sushiswap/blocks",
-    "deploy-moonriver": "graph deploy --product hosted-service sushiswap/blocks-moonriver",
-    "deploy-fuse": "graph deploy --product hosted-service sushiswap/blocks-fuse",
-    "deploy-kava": "graph deploy --node https://pvt-admin.graph.kava.io sushiswap/blocks-kava",
-    "deploy-metis": "graph deploy --node https://andromeda.thegraph.metisdevops.link:8020 --ipfs https://ipfs.thegraph.metisdevops.link:5001 sushiswap/blocks-metis"
+    "create-local": "graph create --node http://localhost:8021/ u2u-amm/blocks",
+    "remove-local": "graph remove --node http://localhost:8021/ u2u-amm/blocks",
+    "deploy-local": "graph deploy --node http://localhost:8021/ --ipfs http://localhost:5002 u2u-amm/blocks"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.60.0",

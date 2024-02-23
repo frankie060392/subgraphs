@@ -22,8 +22,8 @@ module.exports = {
     startBlock: 16097268
   },
   blocks: {
-    address: BLOCK_ADDRESS,
-    startBlock: 16097268
+    address: '0x0000000000000000000000000000000000000000',
+    startBlock: 0,
   },
   legacy: {
     native: { address: NATIVE_ADDRESS },
