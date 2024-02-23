@@ -1,11 +1,13 @@
-import { Pair } from '../../generated/schema'
-import { PairCreated } from '../../generated/Factory/Factory'
-import { Pair as PairTemplate } from '../../generated/templates'
+import { Address, BigInt, log } from "@graphprotocol/graph-ts"
 
-export function onPairCreated(event: PairCreated): void {
-  const pair = new Pair(event.params.pair.toHex())
-  pair.token0 = event.params.token0
-  pair.token1 = event.params.token1
-  pair.save()
-  PairTemplate.create(event.params.pair)
+import { Pool } from '../../generated/schema'
+import { PoolCreated } from '../../generated/UniswapV3Factory/UniswapV3Factory'
+import { Pool as PoolTemplate } from '../../generated/templates'
+
+export function onPoolCreated(event: PoolCreated): void {
+  const pool = new Pool(event.params.pool.toHex())
+  pool.token0 = event.params.token0
+  pool.token1 = event.params.token1
+  pool.save()
+  PoolTemplate.create(event.params.pool)
 }
