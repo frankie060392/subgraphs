@@ -1,48 +1,62 @@
 import { BigInt, Bytes } from '@graphprotocol/graph-ts'
-import { Candle, Pair } from '../../generated/schema'
-import { Swap } from '../../generated/templates/Pair/Pair'
+import { CandleV3, Pool } from '../../generated/schema'
+import { Swap as SwapV3 } from '../../generated/templates/Pool/UniswapV3Pool'
+
 import { concat } from '@graphprotocol/graph-ts/helper-functions'
 
-export function onSwap(event: Swap): void {
-  let token0Amount: BigInt = event.params.amount0In.minus(event.params.amount0Out).abs()
+export function onSwapV3(event: SwapV3): void {
+  let token0Amount: BigInt = event.params.amount0.abs()
 
-  let token1Amount: BigInt = event.params.amount1Out.minus(event.params.amount1In).abs()
+  let token1Amount: BigInt = event.params.amount1.abs()
 
   if (token0Amount.isZero() || token1Amount.isZero()) {
     return
   }
 
-  let pair = Pair.load(event.address.toHex()) as Pair
+  let pool = Pool.load(event.address.toHex()) as Pool
   let price = token0Amount.divDecimal(token1Amount.toBigDecimal())
-  let tokens = concat(pair.token0, pair.token1)
+  let price1 = token1Amount.divDecimal(token0Amount.toBigDecimal())
+  let tokens = concat(pool.token0, pool.token1)
   let timestamp = event.block.timestamp.toI32()
 
   let periods: i32[] = [5 * 60, 15 * 60, 60 * 60, 4 * 60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60]
   for (let i = 0; i < periods.length; i++) {
     let time_id = timestamp / periods[i]
     let candle_id = concat(concat(Bytes.fromI32(time_id), Bytes.fromI32(periods[i])), tokens).toHex()
-    let candle = Candle.load(candle_id)
+    let candle = CandleV3.load(candle_id)
     if (candle === null) {
-      candle = new Candle(candle_id)
+      candle = new CandleV3(candle_id)
       candle.time = timestamp
+      candle.timeId = time_id
       candle.period = periods[i]
-      candle.token0 = pair.token0
-      candle.token1 = pair.token1
-      candle.open = price
-      candle.low = price
-      candle.high = price
+      candle.token0 = pool.token0
+      candle.token1 = pool.token1
+      candle.pool = event.address
+      candle.open0 = price
+      candle.low0 = price
+      candle.high0 = price
+      candle.open1 = price1
+      candle.low1 = price1
+      candle.high1 = price1
       candle.token0TotalAmount = BigInt.fromI32(0)
       candle.token1TotalAmount = BigInt.fromI32(0)
     } else {
-      if (price < candle.low) {
-        candle.low = price
+      if (price < candle.low0) {
+        candle.low0 = price
       }
-      if (price > candle.high) {
-        candle.high = price
+      if (price > candle.high0) {
+        candle.high0 = price
+      }
+      if (price1 < candle.low1) {
+        candle.low1 = price1
+      }
+      if (price1 > candle.high1) {
+        candle.high1 = price1
       }
     }
 
-    candle.close = price
+    candle.close0 = price
+    candle.close1 = price1
 
     candle.lastBlock = event.block.number.toI32()
 

@@ -1,21 +1,26 @@
-type Pair @entity {
+type Pool @entity {
     id: ID! # address
     token0: Bytes!
     token1: Bytes!
 }
 
-type Candle @entity {
+type CandleV3 @entity {
     id: ID! # time + period + srcToken + dstToken
     time: Int!
+    timeId: Int!
     period: Int!
     lastBlock: Int!
     token0: Bytes!
     token1: Bytes!
-
+    pool: Bytes!
     token0TotalAmount: BigInt!
     token1TotalAmount: BigInt!
-    open: BigDecimal!
-    close: BigDecimal!
-    low: BigDecimal!
-    high: BigDecimal!
+    open0: BigDecimal!
+    close0: BigDecimal!
+    low0: BigDecimal!
+    high0: BigDecimal!
+    open1: BigDecimal!
+    close1: BigDecimal!
+    low1: BigDecimal!
+    high1: BigDecimal!
 }
