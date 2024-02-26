@@ -1,0 +1,46 @@
+type Pool @entity {
+    id: ID! # address
+    token0: Bytes!
+    token1: Bytes!
+}
+
+type CandleV3 @entity {
+    id: ID! # time + period + srcToken + dstToken
+    isRoute: Boolean!
+    time: Int!
+    timeId: Int!
+    period: Int!
+    lastBlock: Int!
+    token0: Bytes!
+    token1: Bytes!
+    pool: Bytes!
+    token0TotalAmount: BigInt!
+    token1TotalAmount: BigInt!
+    open0: BigDecimal!
+    close0: BigDecimal!
+    low0: BigDecimal!
+    high0: BigDecimal!
+    open1: BigDecimal!
+    close1: BigDecimal!
+    low1: BigDecimal!
+    high1: BigDecimal!
+}
+
+type SwapTxn @entity {
+  # transaction hash + "#" + index in swaps Transaction array
+  id: ID!
+  # timestamp of transaction
+  timestamp: Int!
+  # allow indexing by tokens
+  token0: Bytes!
+  # allow indexing by tokens
+  token1: Bytes!
+  # recipient of the swap
+  recipient: Bytes!
+  # txn origin
+  origin: Bytes! # the EOA that initiated the txn
+  # delta of token0 swapped
+  amount0: BigInt!
+  # delta of token1 swapped
+  amount1: BigInt!
+}
