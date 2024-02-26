@@ -22,6 +22,11 @@ export function onSwapV3(event: SwapV3): void {
 
   let transactionId = concat(event.transaction.hash, tokens).toHex()
 
+  let isNewTxn = false
+
+  let txn = SwapTxn.load(transactionId)
+  isNewTxn = txn === null
+
   let transaction = new SwapTxn(transactionId)
 
   transaction.token0 = pool.token0
@@ -54,6 +59,8 @@ export function onSwapV3(event: SwapV3): void {
       candle.low1 = price1
       candle.high1 = price1
       candle.isRoute = false
+      candle.volumn0 = BigInt.fromI32(0)
+      candle.volumn1 = BigInt.fromI32(0)
       candle.token0TotalAmount = BigInt.fromI32(0)
       candle.token1TotalAmount = BigInt.fromI32(0)
     } else {
@@ -75,6 +82,14 @@ export function onSwapV3(event: SwapV3): void {
     candle.close1 = price1
 
     candle.lastBlock = event.block.number.toI32()
+
+    if (event.params.amount0.gt(BigInt.fromI32(0)) && isNewTxn) {
+      candle.volumn0.plus(token0Amount)
+    }
+
+    if (event.params.amount1.gt(BigInt.fromI32(0)) && isNewTxn) {
+      candle.volumn0.plus(token1Amount)
+    }
 
     candle.token0TotalAmount = candle.token0TotalAmount.plus(token0Amount)
 
@@ -107,6 +122,11 @@ export function onRouteSwap(event: Route): void {
 
   
   let transactionId = concat(event.transaction.hash, tokens).toHex()
+
+  let isNewTxn = false
+
+  let txn = SwapTxn.load(transactionId)
+  isNewTxn = txn === null
 
   let transaction = new SwapTxn(transactionId)
 
@@ -141,6 +161,8 @@ export function onRouteSwap(event: Route): void {
       candle.low1 = price1
       candle.high1 = price1
       candle.isRoute = true
+      candle.volumn0 = BigInt.fromI32(0)
+      candle.volumn1 = BigInt.fromI32(0)
       candle.token0TotalAmount = BigInt.fromI32(0)
       candle.token1TotalAmount = BigInt.fromI32(0)
     } else {
@@ -160,6 +182,12 @@ export function onRouteSwap(event: Route): void {
 
     candle.close0 = price
     candle.close1 = price1
+
+    if (zeroForOne && isNewTxn) {
+      candle.volumn0.plus(token0Amount)
+    } else if (isNewTxn) {
+      candle.volumn1.plus(token0Amount)
+    }
 
     candle.lastBlock = event.block.number.toI32()
 

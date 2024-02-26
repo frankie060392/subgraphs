@@ -16,6 +16,8 @@ type CandleV3 @entity {
     pool: Bytes!
     token0TotalAmount: BigInt!
     token1TotalAmount: BigInt!
+    volumn0: BigInt!
+    volumn1: BigInt!
     open0: BigDecimal!
     close0: BigDecimal!
     low0: BigDecimal!
