@@ -1,0 +1,65 @@
+specVersion: 0.0.4
+description: Candles (5m/15m/1h/4h/1d/1w)
+repository: https://github.com/sushiswap/subgraphs
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: UniswapV3Factory
+    network: testnet
+    source:
+      address: '0x9f8f7af185C2B6018EE30d8664C51d68Bf682191'
+      abi: UniswapV3Factory
+      startBlock: 17646232
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mappings/factory.ts
+      entities:
+        - Pool
+      abis:
+        - name: UniswapV3Factory
+          file: ./abi/UniswapV3Factory.json
+      eventHandlers:
+        - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
+          handler: onPoolCreated
+  - kind: ethereum/contract
+    name: RouteProcessor3_2
+    network: testnet
+    source:
+      address: '0xd19c153801b24334162c0F68718A40e884135372'
+      abi: RouteProcessor3_2
+      startBlock: 17646232
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mappings/pair.ts
+      entities:
+        - Pool
+      abis:
+        - name: RouteProcessor3_2
+          file: ./abi/RouteProcessor3_2.json
+      eventHandlers:
+        - event: Route(indexed address,address,indexed address,indexed address,uint256,uint256,uint256)
+          handler: onRouteSwap
+templates:
+  - kind: ethereum/contract
+    name: Pool
+    network: testnet
+    source:
+      abi: UniswapV3Pool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mappings/pair.ts
+      entities:
+        - Pool
+      abis:
+        - name: UniswapV3Pool
+          file: ./abi/UniswapV3Pool.json
+      eventHandlers:
+        - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
+          handler: onSwapV3
