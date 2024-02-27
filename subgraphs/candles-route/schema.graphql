@@ -14,10 +14,8 @@ type CandleV3 @entity {
     token0: Bytes!
     token1: Bytes!
     pool: Bytes!
-    token0TotalAmount: BigInt!
-    token1TotalAmount: BigInt!
-    volumn0: BigInt!
-    volumn1: BigInt!
+    token0TotalAmount: BigDecimal!
+    token1TotalAmount: BigDecimal!
     open0: BigDecimal!
     close0: BigDecimal!
     low0: BigDecimal!
@@ -42,7 +40,7 @@ type SwapTxn @entity {
   # txn origin
   origin: Bytes! # the EOA that initiated the txn
   # delta of token0 swapped
-  amount0: BigInt!
+  amount0: BigDecimal!
   # delta of token1 swapped
-  amount1: BigInt!
+  amount1: BigDecimal!
 }
