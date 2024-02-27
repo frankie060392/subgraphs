@@ -1,6 +1,7 @@
-import { BigInt, Bytes, log } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { CandleV3, Pool, SwapTxn } from '../../generated/schema'
 import { Swap as SwapV3 } from '../../generated/templates/Pool/UniswapV3Pool'
+import { ERC20 } from '../../generated/UniswapV3Factory/ERC20'
 import { Route } from '../../generated/RouteProcessor3_2/RouteProcessor3_2'
 
 import { concat } from '@graphprotocol/graph-ts/helper-functions'
@@ -14,7 +15,21 @@ export function onSwapV3(event: SwapV3): void {
     return
   }
 
+  log.debug(`TIME_STAMPPP: ${Date.UTC(2024, 2, 1).toString()}`, [])
+  log.debug(`DATEEE: ${new Date(1709020127000).toString()}`, [])
+
+
   let pool = Pool.load(event.address.toHex()) as Pool
+
+  let decimals0 = fetchTokenDecimals(Address.fromString(pool.token0.toHex()))
+  let decimals1 = fetchTokenDecimals(Address.fromString(pool.token1.toHex()))
+
+  let amount0 = convertTokenToDecimal(token0Amount, decimals0)
+  let amount1 = convertTokenToDecimal(token1Amount, decimals1)
+
+  log.debug(`AMOUNT0: ${amount0}`, [])
+  log.debug(`AMOUNT1: ${amount1}`, [])
+
   let price = token0Amount.divDecimal(token1Amount.toBigDecimal())
   let price1 = token1Amount.divDecimal(token0Amount.toBigDecimal())
   let tokens = concat(pool.token0, pool.token1)
@@ -31,15 +46,15 @@ export function onSwapV3(event: SwapV3): void {
 
   transaction.token0 = pool.token0
   transaction.token1 = pool.token1
-  transaction.amount0 = event.params.amount0
-  transaction.amount1 = event.params.amount1
+  transaction.amount0 = amount0
+  transaction.amount1 = amount1
   transaction.origin = event.transaction.hash
   transaction.recipient = event.params.recipient
   transaction.timestamp = timestamp
 
   transaction.save()
 
-  let periods: i32[] = [5 * 60, 15 * 60, 60 * 60, 4 * 60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60]
+  let periods: i32[] = [1 * 60, 5 * 60, 15 * 60, 30 * 60, 60 * 60, 4 * 60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60]
   for (let i = 0; i < periods.length; i++) {
     let time_id = timestamp / periods[i]
     let candle_id = concat(concat(Bytes.fromI32(time_id), Bytes.fromI32(periods[i])), tokens).toHex()
@@ -59,10 +74,8 @@ export function onSwapV3(event: SwapV3): void {
       candle.low1 = price1
       candle.high1 = price1
       candle.isRoute = false
-      candle.volumn0 = BigInt.fromI32(0)
-      candle.volumn1 = BigInt.fromI32(0)
-      candle.token0TotalAmount = BigInt.fromI32(0)
-      candle.token1TotalAmount = BigInt.fromI32(0)
+      candle.token0TotalAmount = BigDecimal.fromString('0')
+      candle.token1TotalAmount = BigDecimal.fromString('0')
     } else {
       if (price < candle.low0) {
         candle.low0 = price
@@ -83,16 +96,10 @@ export function onSwapV3(event: SwapV3): void {
 
     candle.lastBlock = event.block.number.toI32()
     
-    if (event.params.amount0.gt(BigInt.fromI32(0)) && isNewTxn) {
-      candle.volumn0 = candle.volumn0.plus(token0Amount)
+    if (isNewTxn) {
+      candle.token0TotalAmount = candle.token0TotalAmount.plus(amount0)
+      candle.token1TotalAmount = candle.token1TotalAmount.plus(amount1)
     }
-    if (event.params.amount1.gt(BigInt.fromI32(0)) && isNewTxn) {
-      candle.volumn1 = candle.volumn1.plus(token1Amount)
-    }
-
-    candle.token0TotalAmount = candle.token0TotalAmount.plus(token0Amount)
-
-    candle.token1TotalAmount = candle.token1TotalAmount.plus(token1Amount)
 
     candle.save()
   }
@@ -106,9 +113,17 @@ export function onRouteSwap(event: Route): void {
 
   let token1 = zeroForOne ? event.params.tokenOut : event.params.tokenIn
 
+  let decimals0 = fetchTokenDecimals(token0)
+
+  let decimals1 = fetchTokenDecimals(token1)
+
   let token0Amount: BigInt = zeroForOne ? event.params.amountIn.abs() : event.params.amountOut.abs()
 
+  let amount0 = convertTokenToDecimal(token0Amount, decimals0)
+
   let token1Amount: BigInt = zeroForOne ? event.params.amountOut.abs() : event.params.amountIn.abs()
+
+  let amount1 = convertTokenToDecimal(token1Amount, decimals1)
 
   if (token0Amount.isZero() || token1Amount.isZero()) {
     return
@@ -131,8 +146,8 @@ export function onRouteSwap(event: Route): void {
 
   transaction.token0 = token0
   transaction.token1 = token1
-  transaction.amount0 = zeroForOne ? token0Amount : token0Amount.times(BigInt.fromI32(-1))
-  transaction.amount1 = zeroForOne ? token1Amount.times(BigInt.fromI32(-1)) : token1Amount
+  transaction.amount0 = zeroForOne ? amount0 : amount0.times(BigDecimal.fromString('-1'))
+  transaction.amount1 = zeroForOne ? amount1.times(BigDecimal.fromString('-1')) : amount1
   transaction.origin = event.transaction.hash
   transaction.recipient = event.params.to
   transaction.timestamp = timestamp
@@ -140,7 +155,7 @@ export function onRouteSwap(event: Route): void {
   transaction.save()
 
 
-  let periods: i32[] = [5 * 60, 15 * 60, 60 * 60, 4 * 60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60]
+  let periods: i32[] = [1 * 60, 5 * 60, 15 * 60, 30 * 60, 60 * 60, 4 * 60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60]
   for (let i = 0; i < periods.length; i++) {
     let time_id = timestamp / periods[i]
     let candle_id = concat(concat(Bytes.fromI32(time_id), Bytes.fromI32(periods[i])), tokens).toHex()
@@ -160,10 +175,8 @@ export function onRouteSwap(event: Route): void {
       candle.low1 = price1
       candle.high1 = price1
       candle.isRoute = true
-      candle.volumn0 = BigInt.fromI32(0)
-      candle.volumn1 = BigInt.fromI32(0)
-      candle.token0TotalAmount = BigInt.fromI32(0)
-      candle.token1TotalAmount = BigInt.fromI32(0)
+      candle.token0TotalAmount = BigDecimal.fromString('0')
+      candle.token1TotalAmount = BigDecimal.fromString('0')
     } else {
       if (price < candle.low0) {
         candle.low0 = price
@@ -182,18 +195,38 @@ export function onRouteSwap(event: Route): void {
     candle.close0 = price
     candle.close1 = price1
 
-    if (zeroForOne && isNewTxn) {
-      candle.volumn0 = candle.volumn0.plus(token0Amount)
-    } 
-    if (!zeroForOne && isNewTxn) {
-      candle.volumn1 = candle.volumn1.plus(token1Amount)
-    }
-
     candle.lastBlock = event.block.number.toI32()
 
-    candle.token0TotalAmount = candle.token0TotalAmount.plus(token0Amount)
-
-    candle.token1TotalAmount = candle.token1TotalAmount.plus(token1Amount)
+    if (isNewTxn) {
+      candle.token0TotalAmount = candle.token0TotalAmount.plus(amount0)
+      candle.token1TotalAmount = candle.token1TotalAmount.plus(amount1)
+    }
+    
     candle.save()
   }
+}
+
+export function fetchTokenDecimals(tokenAddress: Address): BigInt {
+  let contract = ERC20.bind(tokenAddress)
+  // try types uint8 for decimals
+  let decimalValue = BigInt.fromString('18').toI32()
+  let decimalResult = contract.try_decimals()
+  if (!decimalResult.reverted) {
+    decimalValue = decimalResult.value
+  }
+
+  return BigInt.fromI32(decimalValue)
+}
+
+export function convertTokenToDecimal(tokenAmount: BigInt, exchangeDecimals: BigInt): BigDecimal {
+  return tokenAmount.toBigDecimal().div(exponentToBigDecimal(exchangeDecimals))
+}
+
+export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
+  let bd = BigDecimal.fromString('1')
+  for (let i = BigInt.fromI32(0); i.lt(decimals as BigInt); i = i.plus(BigInt.fromI32(1))) {
+    bd = bd.times(BigDecimal.fromString('10'))
+  }
+
+  return bd
 }
