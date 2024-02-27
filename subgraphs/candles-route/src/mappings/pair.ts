@@ -1,4 +1,4 @@
-import { BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { CandleV3, Pool, SwapTxn } from '../../generated/schema'
 import { Swap as SwapV3 } from '../../generated/templates/Pool/UniswapV3Pool'
 import { Route } from '../../generated/RouteProcessor3_2/RouteProcessor3_2'
@@ -25,7 +25,7 @@ export function onSwapV3(event: SwapV3): void {
   let isNewTxn = false
 
   let txn = SwapTxn.load(transactionId)
-  isNewTxn = txn === null
+  if (txn === null) isNewTxn = true
 
   let transaction = new SwapTxn(transactionId)
 
@@ -82,13 +82,12 @@ export function onSwapV3(event: SwapV3): void {
     candle.close1 = price1
 
     candle.lastBlock = event.block.number.toI32()
-
+    
     if (event.params.amount0.gt(BigInt.fromI32(0)) && isNewTxn) {
-      candle.volumn0.plus(token0Amount)
+      candle.volumn0 = candle.volumn0.plus(token0Amount)
     }
-
     if (event.params.amount1.gt(BigInt.fromI32(0)) && isNewTxn) {
-      candle.volumn0.plus(token1Amount)
+      candle.volumn1 = candle.volumn1.plus(token1Amount)
     }
 
     candle.token0TotalAmount = candle.token0TotalAmount.plus(token0Amount)
@@ -126,7 +125,7 @@ export function onRouteSwap(event: Route): void {
   let isNewTxn = false
 
   let txn = SwapTxn.load(transactionId)
-  isNewTxn = txn === null
+  if (txn === null) isNewTxn = true
 
   let transaction = new SwapTxn(transactionId)
 
@@ -151,8 +150,8 @@ export function onRouteSwap(event: Route): void {
       candle.time = time_id * periods[i]
       candle.timeId = time_id
       candle.period = periods[i]
-      candle.token0 = event.params.tokenIn
-      candle.token1 = event.params.tokenOut
+      candle.token0 = token0
+      candle.token1 = token1
       candle.pool = event.address
       candle.open0 = price
       candle.low0 = price
@@ -184,9 +183,10 @@ export function onRouteSwap(event: Route): void {
     candle.close1 = price1
 
     if (zeroForOne && isNewTxn) {
-      candle.volumn0.plus(token0Amount)
-    } else if (isNewTxn) {
-      candle.volumn1.plus(token0Amount)
+      candle.volumn0 = candle.volumn0.plus(token0Amount)
+    } 
+    if (!zeroForOne && isNewTxn) {
+      candle.volumn1 = candle.volumn1.plus(token1Amount)
     }
 
     candle.lastBlock = event.block.number.toI32()
@@ -194,7 +194,6 @@ export function onRouteSwap(event: Route): void {
     candle.token0TotalAmount = candle.token0TotalAmount.plus(token0Amount)
 
     candle.token1TotalAmount = candle.token1TotalAmount.plus(token1Amount)
-
     candle.save()
   }
 }
