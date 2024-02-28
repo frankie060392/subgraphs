@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "codegen": "graph codegen",
-    "generate": "mustache ../../config/$NETWORK.js template.yaml > subgraph.yaml && graph codegen",
+    "generate": "mustache ../../config/testnet.js template.yaml > subgraph.yaml && graph codegen",
     "build": "graph build",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ sushiswap/v3-candles",
     "create-local": "graph create --node http://localhost:8021/ u2u-amm/v3-candles",

@@ -15,10 +15,6 @@ export function onSwapV3(event: SwapV3): void {
     return
   }
 
-  log.debug(`TIME_STAMPPP: ${Date.UTC(2024, 2, 1).toString()}`, [])
-  log.debug(`DATEEE: ${new Date(1709020127000).toString()}`, [])
-
-
   let pool = Pool.load(event.address.toHex()) as Pool
 
   let decimals0 = fetchTokenDecimals(Address.fromString(pool.token0.toHex()))
@@ -26,9 +22,6 @@ export function onSwapV3(event: SwapV3): void {
 
   let amount0 = convertTokenToDecimal(token0Amount, decimals0)
   let amount1 = convertTokenToDecimal(token1Amount, decimals1)
-
-  log.debug(`AMOUNT0: ${amount0}`, [])
-  log.debug(`AMOUNT1: ${amount1}`, [])
 
   let price = token0Amount.divDecimal(token1Amount.toBigDecimal())
   let price1 = token1Amount.divDecimal(token0Amount.toBigDecimal())
@@ -103,15 +96,73 @@ export function onSwapV3(event: SwapV3): void {
 
     candle.save()
   }
+
+  let date = new Date(event.block.timestamp.toI64() * 1000)
+  let month = date.getUTCMonth()
+  let year = date.getUTCFullYear()
+  let firstDayOfMonth = Date.UTC(year, month, 1)
+  let candle_month_id = concat(concat(Bytes.fromI64(firstDayOfMonth), Bytes.fromI32(30 * 24 * 60 * 60)), tokens).toHex()
+  let candle = CandleV3.load(candle_month_id)
+    if (candle === null) {
+      candle = new CandleV3(candle_month_id)
+      candle.time = BigInt.fromI64(firstDayOfMonth / 1000).toI32()
+      candle.timeId = BigInt.fromI64(firstDayOfMonth / 1000).toI32()
+      candle.period = 30 * 24 * 60 * 60
+      candle.token0 = pool.token0
+      candle.token1 = pool.token1
+      candle.pool = event.address
+      candle.open0 = price
+      candle.low0 = price
+      candle.high0 = price
+      candle.open1 = price1
+      candle.low1 = price1
+      candle.high1 = price1
+      candle.isRoute = false
+      candle.token0TotalAmount = BigDecimal.fromString('0')
+      candle.token1TotalAmount = BigDecimal.fromString('0')
+    } else {
+      if (price < candle.low0) {
+        candle.low0 = price
+      }
+      if (price > candle.high0) {
+        candle.high0 = price
+      }
+      if (price1 < candle.low1) {
+        candle.low1 = price1
+      }
+      if (price1 > candle.high1) {
+        candle.high1 = price1
+      }
+    }
+
+    candle.close0 = price
+    candle.close1 = price1
+
+    candle.lastBlock = event.block.number.toI32()
+    
+    if (isNewTxn) {
+      candle.token0TotalAmount = candle.token0TotalAmount.plus(amount0)
+      candle.token1TotalAmount = candle.token1TotalAmount.plus(amount1)
+    }
+
+    candle.save()
+
 }
 
 export function onRouteSwap(event: Route): void {
+
+  let wrapToken = "0xae3cdf25fd5c3443dea93cc7af3226395b48c53a"
+
+  let nativeToken = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
   let zeroForOne = event.params.tokenIn.toHex() < event.params.tokenOut.toHex();
 
   let token0 = zeroForOne ? event.params.tokenIn : event.params.tokenOut
 
   let token1 = zeroForOne ? event.params.tokenOut : event.params.tokenIn
+
+  token0 = token0.toHex() == nativeToken ? Address.fromString(wrapToken) : token0
+  token1 = token1.toHex() == nativeToken ? Address.fromString(wrapToken) : token1
 
   let decimals0 = fetchTokenDecimals(token0)
 
@@ -204,6 +255,56 @@ export function onRouteSwap(event: Route): void {
     
     candle.save()
   }
+
+  let date = new Date(event.block.timestamp.toI64() * 1000)
+  let month = date.getUTCMonth()
+  let year = date.getUTCFullYear()
+  let firstDayOfMonth = Date.UTC(year, month, 1)
+  let candle_month_id = concat(concat(Bytes.fromI64(firstDayOfMonth), Bytes.fromI32(30 * 24 * 60 * 60)), tokens).toHex()
+  let candle = CandleV3.load(candle_month_id)
+    if (candle === null) {
+      candle = new CandleV3(candle_month_id)
+      candle.time = BigInt.fromI64(firstDayOfMonth / 1000).toI32()
+      candle.timeId = BigInt.fromI64(firstDayOfMonth / 1000).toI32()
+      candle.period = 30 * 24 * 60 * 60
+      candle.token0 = token0
+      candle.token1 = token1
+      candle.pool = event.address
+      candle.open0 = price
+      candle.low0 = price
+      candle.high0 = price
+      candle.open1 = price1
+      candle.low1 = price1
+      candle.high1 = price1
+      candle.isRoute = false
+      candle.token0TotalAmount = BigDecimal.fromString('0')
+      candle.token1TotalAmount = BigDecimal.fromString('0')
+    } else {
+      if (price < candle.low0) {
+        candle.low0 = price
+      }
+      if (price > candle.high0) {
+        candle.high0 = price
+      }
+      if (price1 < candle.low1) {
+        candle.low1 = price1
+      }
+      if (price1 > candle.high1) {
+        candle.high1 = price1
+      }
+    }
+
+    candle.close0 = price
+    candle.close1 = price1
+
+    candle.lastBlock = event.block.number.toI32()
+    
+    if (isNewTxn) {
+      candle.token0TotalAmount = candle.token0TotalAmount.plus(amount0)
+      candle.token1TotalAmount = candle.token1TotalAmount.plus(amount1)
+    }
+
+    candle.save()
 }
 
 export function fetchTokenDecimals(tokenAddress: Address): BigInt {
