@@ -23,8 +23,8 @@ export function onSwapV3(event: SwapV3): void {
   let amount0 = convertTokenToDecimal(token0Amount, decimals0)
   let amount1 = convertTokenToDecimal(token1Amount, decimals1)
 
-  let price = token0Amount.divDecimal(token1Amount.toBigDecimal())
-  let price1 = token1Amount.divDecimal(token0Amount.toBigDecimal())
+  let price1 = token0Amount.divDecimal(token1Amount.toBigDecimal())
+  let price = token1Amount.divDecimal(token0Amount.toBigDecimal())
   let tokens = concat(pool.token0, pool.token1)
   let timestamp = event.block.timestamp.toI32()
 
@@ -180,8 +180,8 @@ export function onRouteSwap(event: Route): void {
     return
   }
 
-  let price = token0Amount.divDecimal(token1Amount.toBigDecimal())
-  let price1 = token1Amount.divDecimal(token0Amount.toBigDecimal())
+  let price1 = token0Amount.divDecimal(token1Amount.toBigDecimal())
+  let price = token1Amount.divDecimal(token0Amount.toBigDecimal())
   let tokens = concat(token0, token1)
   let timestamp = event.block.timestamp.toI32()
 
