@@ -9,13 +9,13 @@
     "generated"
   ],
   "scripts": {
-    "generate": "mustache ../../config/ethereum.js template.yaml > subgraph.yaml && mustache ../../config/ethereum.js src/constants/index.template.ts > src/constants/index.ts && graph codegen",
+    "generate": "mustache ../../config/testnet.js template.yaml > subgraph.yaml && mustache ../../config/testnet.js src/constants/index.template.ts > src/constants/index.ts && graph codegen",
     "build": "graph build",
     "test": "graph test -r",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ sushiswap/xsushi",
-    "create-local": "graph create --node http://localhost:8020/ sushiswap/xsushi",
-    "remove-local": "graph remove --node http://localhost:8020/ sushiswap/xsushi",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 sushiswap/xsushi"
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ u2u-amm/xsushi",
+    "create-local": "graph create --node http://localhost:8021/ u2u-amm/xsushi",
+    "remove-local": "graph remove --node http://localhost:8021/ u2u-amm/xsushi",
+    "deploy-local": "graph deploy --node http://localhost:8021/ --ipfs http://localhost:5002 u2u-amm/xsushi"
   },
   "devDependencies": {
     "abi": "workspace:*",
