@@ -8,9 +8,9 @@ dataSources:
     name: UniswapV3Factory
     network: testnet
     source:
-      address: '0x9f8f7af185C2B6018EE30d8664C51d68Bf682191'
+      address: '0xe4F64D8225d08594d3cbc7Dd886D1fa71a5D9D9D'
       abi: UniswapV3Factory
-      startBlock: 17646232
+      startBlock: 18909782
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -30,9 +30,9 @@ dataSources:
     name: RouteProcessor3_2
     network: testnet
     source:
-      address: '0xd19c153801b24334162c0F68718A40e884135372'
+      address: '0xEecbfd9a7B4A5B1870ae3B971AEa3303947C38e1'
       abi: RouteProcessor3_2
-      startBlock: 17646232
+      startBlock: 18909782
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
