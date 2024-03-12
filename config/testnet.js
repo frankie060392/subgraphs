@@ -1,4 +1,4 @@
-const NATIVE_ADDRESS = '0xae3cdf25fd5c3443dea93cc7af3226395b48c53a'
+const NATIVE_ADDRESS = '0x4b9f8077856d81c5e97948dbec8960024d4908c1'
 const WBTC_ADDRESS = '0x5289638b40725fb3c33f801d1a339878674ff555'
 const DAI_ADDRESS = '0x73fe4db0779022ff9c0b32ef2644272b32bef5b7'
 const USDC_ADDRESS = '0x9a0359e8432c856e1eefc6f2e242b5dfed41b3ec'
@@ -93,12 +93,12 @@ module.exports = {
   },
   v3: {
     factory: {
-      address: '0x9f8f7af185C2B6018EE30d8664C51d68Bf682191',
-      startBlock: 17646232
+      address: '0xe4f64d8225d08594d3cbc7dd886d1fa71a5d9d9d',
+      startBlock: 18909782
     },
     positionManager: {
-      address: '0x8947965e577e899fa4ec709e5f4ead81bbcacbd8',
-      startBlock: 17646458
+      address: '0x05034bac56e2fc70285dd180c6d91b6fb789c5b1',
+      startBlock: 18909822
     },
     native: { address: NATIVE_ADDRESS },
     whitelistedTokenAddresses: [
@@ -117,7 +117,7 @@ module.exports = {
       DAI_ADDRESS,
       BUSD_ADDRESS
     ],
-    nativePricePool: '0xdb60e05219f99b24da9271dd336fc9c3d406c5db',
+    nativePricePool: '0x6671b77ef0f8de820c2740c9a79a8e52d67f5ee9',
     minimumEthLocked: 1.5
   },
   blacklistedTokenAddresses: [
