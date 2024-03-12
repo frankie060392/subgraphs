@@ -28,7 +28,7 @@ export function onSwapV3(event: SwapV3): void {
   let tokens = concat(pool.token0, pool.token1)
   let timestamp = event.block.timestamp.toI32()
 
-  let transactionId = concat(event.transaction.hash, tokens).toHex()
+  let transactionId = concat(concat(event.transaction.hash, tokens), event.params.recipient).toHex()
 
   let isNewTxn = false
 
@@ -39,8 +39,8 @@ export function onSwapV3(event: SwapV3): void {
 
   transaction.token0 = pool.token0
   transaction.token1 = pool.token1
-  transaction.amount0 = amount0
-  transaction.amount1 = amount1
+  transaction.amount0 = event.params.amount0.gt(BigInt.fromI32(0)) ? amount0 : amount0.times(BigDecimal.fromString('-1'))
+  transaction.amount1 = event.params.amount1.gt(BigInt.fromI32(0)) ? amount1 : amount1.times(BigDecimal.fromString('-1'))
   transaction.origin = event.transaction.hash
   transaction.recipient = event.params.recipient
   transaction.timestamp = timestamp
@@ -151,18 +151,26 @@ export function onSwapV3(event: SwapV3): void {
 
 export function onRouteSwap(event: Route): void {
 
-  let wrapToken = "0xae3cdf25fd5c3443dea93cc7af3226395b48c53a"
+  let wrapToken = "0x4b9f8077856d81c5e97948dbec8960024d4908c1"
 
   let nativeToken = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
-  let zeroForOne = event.params.tokenIn.toHex() < event.params.tokenOut.toHex();
+  // let zeroForOne = event.params.tokenIn.toHex() < event.params.tokenOut.toHex();
+  // let token0 = zeroForOne ? event.params.tokenIn : event.params.tokenOut
 
-  let token0 = zeroForOne ? event.params.tokenIn : event.params.tokenOut
+  // let token1 = zeroForOne ? event.params.tokenOut : event.params.tokenIn
 
-  let token1 = zeroForOne ? event.params.tokenOut : event.params.tokenIn
+  // token0 = token0.toHex() == nativeToken ? Address.fromString(wrapToken) : token0
+  // token1 = token1.toHex() == nativeToken ? Address.fromString(wrapToken) : token1
 
-  token0 = token0.toHex() == nativeToken ? Address.fromString(wrapToken) : token0
-  token1 = token1.toHex() == nativeToken ? Address.fromString(wrapToken) : token1
+  let token0Mock = event.params.tokenIn.toHex() == nativeToken ? Address.fromString(wrapToken) : event.params.tokenIn
+  let token1Mock = event.params.tokenOut.toHex() == nativeToken ? Address.fromString(wrapToken) : event.params.tokenOut
+
+  let zeroForOne = token0Mock.toHex() < token1Mock.toHex();
+
+  let token0 = zeroForOne ? token0Mock : token1Mock
+
+  let token1 = zeroForOne ? token1Mock : token0Mock
 
   let decimals0 = fetchTokenDecimals(token0)
 
@@ -186,7 +194,7 @@ export function onRouteSwap(event: Route): void {
   let timestamp = event.block.timestamp.toI32()
 
   
-  let transactionId = concat(event.transaction.hash, tokens).toHex()
+  let transactionId = concat(concat(event.transaction.hash, tokens), event.params.to).toHex()
 
   let isNewTxn = false
 
