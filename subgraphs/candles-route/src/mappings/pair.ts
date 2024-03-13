@@ -28,7 +28,7 @@ export function onSwapV3(event: SwapV3): void {
   let tokens = concat(pool.token0, pool.token1)
   let timestamp = event.block.timestamp.toI32()
 
-  let transactionId = concat(concat(event.transaction.hash, tokens), event.params.recipient).toHex()
+  let transactionId = concat(concat(event.transaction.hash, tokens), concat(event.address, event.params.recipient)).toHex()
 
   let isNewTxn = false
 
@@ -194,7 +194,7 @@ export function onRouteSwap(event: Route): void {
   let timestamp = event.block.timestamp.toI32()
 
   
-  let transactionId = concat(concat(event.transaction.hash, tokens), event.params.to).toHex()
+  let transactionId = concat(concat(event.transaction.hash, tokens), concat(event.address, event.params.to)).toHex()
 
   let isNewTxn = false
 
