@@ -28,25 +28,44 @@ export function onSwapV3(event: SwapV3): void {
   let tokens = concat(pool.token0, pool.token1)
   let timestamp = event.block.timestamp.toI32()
 
-  let transactionId = concat(concat(event.transaction.hash, tokens), concat(event.address, event.params.recipient)).toHex()
+  let transactionId = concat(concat(event.transaction.hash, tokens), event.params.recipient).toHex()
 
   let isNewTxn = false
 
   let txn = SwapTxn.load(transactionId)
-  if (txn === null) isNewTxn = true
+  if (txn === null) {
+    isNewTxn = true
+    let transaction = new SwapTxn(transactionId)
 
-  let transaction = new SwapTxn(transactionId)
+    transaction.token0 = pool.token0
+    transaction.token1 = pool.token1
+    transaction.amount0 = event.params.amount0.gt(BigInt.fromI32(0)) ? amount0 : amount0.times(BigDecimal.fromString('-1'))
+    transaction.amount1 = event.params.amount1.gt(BigInt.fromI32(0)) ? amount1 : amount1.times(BigDecimal.fromString('-1'))
+    transaction.origin = event.transaction.hash
+    transaction.recipient = event.params.recipient
+    transaction.timestamp = timestamp
+    transaction.pool = event.address
 
-  transaction.token0 = pool.token0
-  transaction.token1 = pool.token1
-  transaction.amount0 = event.params.amount0.gt(BigInt.fromI32(0)) ? amount0 : amount0.times(BigDecimal.fromString('-1'))
-  transaction.amount1 = event.params.amount1.gt(BigInt.fromI32(0)) ? amount1 : amount1.times(BigDecimal.fromString('-1'))
-  transaction.origin = event.transaction.hash
-  transaction.recipient = event.params.recipient
-  transaction.timestamp = timestamp
+    transaction.save()
+  }
+  else {
+    if (txn.pool != event.address) {
+      let newTransactionId = concat(concat(event.transaction.hash, tokens), concat(event.address, event.params.recipient)).toHex()
+      let transaction = new SwapTxn(newTransactionId)
 
-  transaction.save()
+      transaction.token0 = pool.token0
+      transaction.token1 = pool.token1
+      transaction.amount0 = event.params.amount0.gt(BigInt.fromI32(0)) ? amount0 : amount0.times(BigDecimal.fromString('-1'))
+      transaction.amount1 = event.params.amount1.gt(BigInt.fromI32(0)) ? amount1 : amount1.times(BigDecimal.fromString('-1'))
+      transaction.origin = event.transaction.hash
+      transaction.recipient = event.params.recipient
+      transaction.timestamp = timestamp
+      transaction.pool = event.address
 
+      transaction.save()
+    }
+  }
+  
   let periods: i32[] = [1 * 60, 5 * 60, 15 * 60, 30 * 60, 60 * 60, 4 * 60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60]
   for (let i = 0; i < periods.length; i++) {
     let time_id = timestamp / periods[i]
@@ -194,7 +213,7 @@ export function onRouteSwap(event: Route): void {
   let timestamp = event.block.timestamp.toI32()
 
   
-  let transactionId = concat(concat(event.transaction.hash, tokens), concat(event.address, event.params.to)).toHex()
+  let transactionId = concat(concat(event.transaction.hash, tokens), event.params.to).toHex()
 
   let isNewTxn = false
 
@@ -210,6 +229,7 @@ export function onRouteSwap(event: Route): void {
   transaction.origin = event.transaction.hash
   transaction.recipient = event.params.to
   transaction.timestamp = timestamp
+  transaction.pool = event.address
 
   transaction.save()
 
