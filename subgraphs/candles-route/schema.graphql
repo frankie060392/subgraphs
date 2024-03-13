@@ -43,4 +43,6 @@ type SwapTxn @entity {
   amount0: BigDecimal!
   # delta of token1 swapped
   amount1: BigDecimal!
+
+  pool: Bytes!
 }
