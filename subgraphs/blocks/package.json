@@ -9,12 +9,12 @@
     "generated"
   ],
   "scripts": {
-    "generate": "mustache ../../config/testnet.js template.yaml > subgraph.yaml && graph codegen",
+    "generate": "mustache ../../config/testnet-farm.js template.yaml > subgraph.yaml && graph codegen",
     "build": "graph build",
     "test": "graph test -r",
-    "create-local": "graph create --node http://localhost:8021/ u2u-amm/blocks",
-    "remove-local": "graph remove --node http://localhost:8021/ u2u-amm/blocks",
-    "deploy-local": "graph deploy --node http://localhost:8021/ --ipfs http://localhost:5002 u2u-amm/blocks"
+    "create-local": "graph create --node http://localhost:8021/ u2u-amm/f-blocks",
+    "remove-local": "graph remove --node http://localhost:8021/ u2u-amm/f-blocks",
+    "deploy-local": "graph deploy --node http://localhost:8021/ --ipfs http://localhost:5002 u2u-amm/f-blocks"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.60.0",
